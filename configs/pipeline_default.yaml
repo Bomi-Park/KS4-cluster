@@ -1,0 +1,168 @@
+# ============================================================
+# KS4 Red-Sequence Cluster Detection Pipeline
+# Default configuration
+# ============================================================
+
+# ------------------------------------------------------------
+# Red-sequence selection (Step 1)
+# ------------------------------------------------------------
+red_sequence:
+  # Magnitude columns used to define color
+  mag1: MAG_AUTO_R
+  mag2: MAG_AUTO_I
+
+  # Color cut width: |color - RS_mean| < cutsig * RS_sigma
+  cutsig: 0.5
+
+
+# ------------------------------------------------------------
+# Density map construction (Step 2)
+# ------------------------------------------------------------
+density_map:
+  # Coordinate system for density map
+  coord_mode: radec        # radec | xy
+
+  # Column names (used if coord_mode: radec)
+  ra_col: RA
+  dec_col: DEC
+
+  # Binning
+  nbins: 256               # number of bins per axis
+
+  # Smoothing
+  smooth_sigma: 1.0        # in pixel units of density map
+  smooth_truncate: 3.0
+
+  # Normalization
+  globdensity: true        # global normalization
+  norm_mode: max           # none | max | sum | zscore
+
+  # Small padding to avoid edge clipping
+  pad_frac: 0.01
+
+
+# ------------------------------------------------------------
+# Density map plotting (Step 3, optional)
+# ------------------------------------------------------------
+plot_density:
+  figsize: [6, 5]
+  cmap: viridis
+  vmin: null
+  vmax: null
+
+
+# ------------------------------------------------------------
+# FITS creation (Step 4)
+# ------------------------------------------------------------
+fits:
+  tag: density
+
+
+# ------------------------------------------------------------
+# SExtractor (Step 5)
+# ------------------------------------------------------------
+sextractor:
+  # Executable name (check with: which sex)
+  exe: sex
+
+  # Output directory for SExtractor products
+  out_dir: outputs/sex
+
+  tag: sex
+  catalog_ext: .cat
+
+  # Core config files
+  config: configs/sex/default.sex
+  parameters: configs/sex/default.param
+  filter: configs/sex/default.conv
+  nnw: configs/sex/default.nnw
+
+  # Detection parameters
+  detect_thresh: 2.0
+  analysis_thresh: 2.0
+  detect_minarea: 9
+
+  # Deblending
+  deblend_nthresh: 32
+  deblend_mincount: 0.005
+
+  # Outputs
+  make_segmentation: true
+  make_background: false
+
+  # Logging
+  write_log: true
+  extra_args: "-VERBOSE_TYPE QUIET"
+
+
+# ------------------------------------------------------------
+# Cluster detection (Step 6)
+# ------------------------------------------------------------
+cluster_detect:
+  # RS member assignment radius
+  member_radius_arcmin: 1.0
+
+  # Minimum RS members for a valid cluster
+  min_members: 5
+
+
+# ------------------------------------------------------------
+# Diagnostic cluster images (Step 7, optional)
+# ------------------------------------------------------------
+cluster_images:
+  out_dir: outputs/cluster_images
+  figsize: [6, 5]
+  cmap: viridis
+  member_color: cyan
+  center_color: red
+
+
+# ------------------------------------------------------------
+# Star–galaxy classification
+# ------------------------------------------------------------
+classification:
+  ra_col: RA
+  dec_col: DEC
+  class_star_col: CLASS_STAR
+
+  class_star_star_thresh: 0.98
+  class_star_gal_thresh: 0.50
+  mid_as_galaxy: true
+
+  use_gaia: true
+  gaia_match_radius_arcsec: 1.0
+  gaia_ra_col: ra
+  gaia_dec_col: dec
+  prefer_gaia_star: true
+
+
+# ------------------------------------------------------------
+# Field-level selection
+# ------------------------------------------------------------
+field_selection:
+  # Set to null to disable
+  max_stars: null
+  min_stars: null
+
+
+# ------------------------------------------------------------
+# Consolidation of duplicated clusters
+# ------------------------------------------------------------
+consolidation:
+  match_radius_arcmin: 2.0
+
+  # Static redshift threshold
+  dz_max: 0.05
+
+  # Adaptive dz option
+  adaptive_dz: false
+  dz_base: 0.02
+  dz_slope: 0.02
+
+  # Member overlap criterion
+  use_member_overlap: false
+  min_member_jaccard: 0.2
+  member_id_col: OBJID
+
+  # Representative cluster selection
+  representative: max_n_member
