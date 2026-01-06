@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ks4-rs"
+version = "0.1.0"
+description = "Red-sequence based galaxy cluster detection pipeline for KS4"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+authors = [
+  { name = "Bomi Park", email = "your@email.com" }
+]
+
+keywords = [
+  "astronomy",
+  "galaxy clusters",
+  "red sequence",
+  "KS4",
+  "KMTNet"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Astronomy"
+]
+
+dependencies = [
+  "numpy>=1.22",
+  "scipy>=1.9",
+  "astropy>=5.0",
+  "pyyaml>=6.0",
+  "matplotlib>=3.6"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "black",
+  "ruff"
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I"]
